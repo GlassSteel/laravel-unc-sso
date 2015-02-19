@@ -1,13 +1,7 @@
 <?php namespace GlassSteel\LaravelUncSso;
 
-class UncSsoAuth
+class UncSso
 {
-
-	protected spoof_pid = null;
-
-	public function setSpoofPid($pid){
-		$this->spoof_pid = $pid;
-	}//setSpoofPid()
 
 	protected function get_pid(){
 		/* do in config
@@ -34,4 +28,4 @@ class UncSsoAuth
 		return false;
 	}//get_pid()
 
-}//class UncSsoAuth
+}//class UncSso

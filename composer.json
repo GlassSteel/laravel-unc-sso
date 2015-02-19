@@ -13,7 +13,7 @@
     "require-dev": {},
     "autoload": {
         "psr-4": {
-        	"GlassSteel\\LaravelUncSso\\": "src/"
+        	"GlassSteel\\LaravelUncSso\\": "src"
 		}
     }
 }

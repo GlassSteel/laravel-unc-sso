@@ -3,7 +3,8 @@
 class UncSso
 {
 
-	protected function get_pid(){
+	public function get_pid(){
+		return '1234567';
 		/* do in config
 		if ( !is_null($this->spoof_pid) ){
 			return $this->spoof_pid;

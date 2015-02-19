@@ -12,4 +12,4 @@ class UncSso extends Facade
      */
     protected static function getFacadeAccessor() { return 'unc_sso'; }
 
-}//class UncSso
+}//class UncSsoAuth

@@ -22,7 +22,7 @@ class UncSsoServiceProvider extends ServiceProvider
         $this->app->booting(function()
         {
             $loader = \Illuminate\Foundation\AliasLoader::getInstance();
-            $loader->alias('UncSso', 'GlassSteel\LaravelUncSso\UncSso');
+            $loader->alias('UncSso', 'GlassSteel\LaravelUncSso\Facades\UncSso');
         });
     }
 }//UncSsoServiceProvider()

@@ -1,3 +1,19 @@
 {
-	"name": "glasteel/laravel-unc-sso"
+	"name": "glasteel/laravel-unc-sso",
+	"description": "Basic Shibboleth support for Laravel 5",
+    "license": "MIT",
+    "keywords": ["laravel","shibboleth"],
+    "authors": [
+        {
+            "name": "Paul Glass-Steel",
+            "email": "paul_gs@unc.edu"
+        }
+    ],
+    "require": {},
+    "require-dev": {},
+    "autoload": {
+        "psr-4": {
+        }
+    }
 }
+

@@ -26,7 +26,8 @@ class MigrationCommand extends Command
      */
     public function fire()
     {
-        $this->laravel->view->addNamespace('unc_sso', substr(__DIR__, 0, -8).'views');
+      
+        $this->laravel->view->addNamespace('unc_sso', __DIR__.'/views');
 
         $keysTable = Config::get('unc_sso.unc_keys_table');
         $localusersTable = Config::get('unc_sso.local_users_table');
@@ -44,7 +45,8 @@ class MigrationCommand extends Command
             $this->line('');
 
             $this->info("Creating migration...");
-            if ($this->createMigration($keysTable)) {
+
+            if ($this->createMigration($keysTable,$localusersTable)) {
                 $this->info("Migration successfully created!");
             } else {
                 $this->error(
@@ -67,13 +69,13 @@ class MigrationCommand extends Command
      */
     protected function createMigration($keysTable,$localusersTable)
     {
-        $migrationFile = base_path("/database/migrations")."/".date('Y_m_d_His')."_unc_sso_setup_tables.php";
-
+        $migrationFile = base_path("database/migrations")."/".date('Y_m_d_His')."_unc_sso_setup_tables.php";
+        
         $usersTable  = Config::get('auth.table');
         $userModel   = Config::get('auth.model');
         $userKeyName = (new $userModel())->getKeyName();
 
-        $data = compact('keysTable','localusersTable');
+        $data = compact('keysTable','localusersTable','userKeyName','usersTable');
 
         $output = $this->laravel->view->make('unc_sso::generators.migration')->with($data)->render();
 

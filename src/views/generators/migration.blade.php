@@ -15,7 +15,7 @@ class UncSsoSetupTables extends Migration
         // Create table for storing unc pids and onyens (unc keys)
         Schema::create('{{ $keysTable }}', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('user_id')->unsigned();
+            $table->integer('user_id')->unsigned()->unique();
             $table->string('onyen')->unique();
             $table->string('unc_pid')->unique();
             $table->timestamps();

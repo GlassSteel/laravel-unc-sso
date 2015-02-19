@@ -37,6 +37,8 @@ class UncSsoServiceProvider extends ServiceProvider
     {
         $this->registerUncSso();
 
+        $this->registerCommands();
+
         // Shortcut so developers don't need to add an Alias in app/config/app.php
         $this->app->booting(function()
         {

@@ -10,6 +10,8 @@ class UncSso extends Facade
      *
      * @return string
      */
-    protected static function getFacadeAccessor() { return 'unc_sso'; }
+    protected static function getFacadeAccessor() {
+    	return 'unc_sso';
+    }
 
 }//class UncSsoAuth

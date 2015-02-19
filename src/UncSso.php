@@ -1,10 +1,13 @@
 <?php namespace GlassSteel\LaravelUncSso;
 
+use Illuminate\Support\Facades\Config;
+
 class UncSso
 {
 
 	public function get_pid(){
-		return '1234567';
+		return Config::get('unc_sso.spoof_as');
+
 		/* do in config
 		if ( !is_null($this->spoof_pid) ){
 			return $this->spoof_pid;

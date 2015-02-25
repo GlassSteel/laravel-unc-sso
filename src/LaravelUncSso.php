@@ -8,7 +8,6 @@ class LaravelUncSso
 	public function setAuthUser(){
 		$user = false;
 		$pid = $this->get_pid();
-		pre_r(__METHOD__,$pid);
 		if ( $pid && $this->validate_pid($pid) ){
 			$user_class = Config::get('unc_sso.auth_model');
 			$user = $user_class::findByPid($pid);
@@ -17,26 +16,21 @@ class LaravelUncSso
 			Auth::login($user);
 		}elseif ( Auth::check() ){
 			Auth::logout();
-			pre_r('logging out, no user for pid');
 		}
 	}//setAuthUser()
 
 	public function checkAuthUser($next){
-		pre_r(__METHOD__);
 		if ( !Auth::check() ){
 			$this->setAuthUser();
 		}
 		if ( !Auth::check() ){
 			$pid = $this->get_pid();
 			if ( $pid && $this->validate_pid($pid) ){
-				pre_r('pid is valid, but no matching user found');
 				/**
 				 * Assume PID is valid, but no matching User yet in our DB;
 				 * Redirect to signup screen
 				 */
-				pre_r(Request::url());
 				if ( Request::url() != Config::get('unc_sso.signup_action') ){
-					pre_r('rediect to ' . Config::get('unc_sso.signup_action') );
 					return Redirect::to( Config::get('unc_sso.signup_action') );
 				}
 			}else{

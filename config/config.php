@@ -7,8 +7,6 @@
  * @license MIT
  * @package GlassSteel\LaravelUncSso
  */
-pre_r(URL::to('/admin/signup'));
-
 return array(
     'signup_action' => URL::to('/admin/signup'),//TEMP action('UncSsoController@signup'),
 

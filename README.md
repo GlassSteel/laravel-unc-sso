@@ -50,6 +50,8 @@ You may also opt to create stub models and a development seed file.
 
 Add `$this->call('UncSsoDevUserSetupSeeder');` to `DatabaseSeeder.php` to use the seeder. You may also need to run `composer dump-autoload`
 
-//TODO
-trait for user model to rel key & local
-middleware
+## Usage
+
+Add `'GlassSteel\LaravelUncSso\UncInitUser'` to the `$middleware` array in `app/http/Kernel.php` to check for a UNC pid on each request, and login the matching user, if any, via `Auth::login()`
+
+Add `'unc_sso' => 'GlassSteel\LaravelUncSso\UncAuthUser'` to the `$routeMiddleware` array. Any routes protected by the `'unc_sso'` middleware will redirect to signup if a valid-seeming PID is found but not mached to an existing user, or will redirect to home if no PID is found.

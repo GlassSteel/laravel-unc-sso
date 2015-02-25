@@ -29,6 +29,6 @@ return array(
     	'unc_pid' => '765432189',
     ],
 
-    'auth_model' => 'User',
+    'auth_model' => 'App\User',
     'auth_table' => 'users',
 );

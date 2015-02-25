@@ -8,7 +8,7 @@
  * @package GlassSteel\LaravelUncSso
  */
 return array(
-    'signup_action' => URL::to('/admin/signup'),//TEMP action('UncSsoController@signup'),
+    'signup_action' => '/admin/signup',
 
     'spoof_as' => [
         'pid' => null,
@@ -29,6 +29,6 @@ return array(
     	'unc_pid' => '765432189',
     ],
 
-    'auth_model' => Config::get('auth.model'),
-    'auth_table' => Config::get('auth.table'),
+    'auth_model' => 'User',
+    'auth_table' => 'users',
 );

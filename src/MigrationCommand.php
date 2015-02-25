@@ -120,11 +120,24 @@ class MigrationCommand extends Command
             'model_class' => $model_class,
         ])->render();
         $file = base_path("app") . "/" . $model_class . '.php';
-        if (!file_exists($file) && $fs = fopen($file, 'x')) {
-            fwrite($fs, $output);
-            fclose($fs);
-            return true;
+        if ( file_exists($file) ){
+            if ( !$this->confirm("Overrite existing $file file? [Yes|no]") ){
+                return false;
+            }else{
+                if ( $fs = fopen($file, 'w')) {
+                    fwrite($fs, $output);
+                    fclose($fs);
+                    return true;
+                }
+            }
+        }else{
+            if ( $fs = fopen($file, 'x')) {
+                fwrite($fs, $output);
+                fclose($fs);
+                return true;
+            }
         }
+        
         return false;
     }//createAuthUserStub()
 

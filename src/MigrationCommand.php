@@ -40,6 +40,23 @@ class MigrationCommand extends Command
         $this->comment($message);
         $this->line('');
 
+        if ($this->confirm("Create stub auth user model file? [Yes|no]") ){
+            $this->line('');
+
+            $this->info("Creating auth user model...");
+
+            if ($this->createAuthUserStub()) {
+                $this->info("Auth user model file successfully created!");
+            } else {
+                $this->error(
+                    "Coudn't create model file.\n Check the write permissions".
+                    " within the app/ directory."
+                );
+            }
+
+            $this->line('');
+        }
+        
         if ($this->confirm("Proceed with the migration creation? [Yes|no]")) {
 
             $this->line('');
@@ -57,23 +74,6 @@ class MigrationCommand extends Command
 
             $this->line('');
 
-        }
-
-        if ($this->confirm("Create stub auth user model file? [Yes|no]") ){
-            $this->line('');
-
-            $this->info("Creating auth user model...");
-
-            if ($this->createAuthUserStub()) {
-                $this->info("Auth user model file successfully created!");
-            } else {
-                $this->error(
-                    "Coudn't create model file.\n Check the write permissions".
-                    " within the app/ directory."
-                );
-            }
-
-            $this->line('');
         }
 
         if ($this->confirm("Create stub local user & unc key model files? [Yes|no]") ){

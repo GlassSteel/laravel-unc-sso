@@ -1,8 +1,8 @@
-<?php namespace GlassSteel\LaravelUncSso\Facades;
+<?php namespace GlassSteel\LaravelUncSso;
 
 use Illuminate\Support\Facades\Facade;
 
-class UncSso extends Facade
+class UncSsoFacade extends Facade
 {
 
     /**
@@ -14,4 +14,4 @@ class UncSso extends Facade
     	return 'unc_sso';
     }
 
-}//class UncSsoAuth
+}//class UncSsoFacade

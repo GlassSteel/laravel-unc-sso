@@ -43,7 +43,7 @@ class UncSsoServiceProvider extends ServiceProvider
         $this->app->booting(function()
         {
             $loader = \Illuminate\Foundation\AliasLoader::getInstance();
-            $loader->alias('UncSso', 'GlassSteel\LaravelUncSso\Facades\UncSso');
+            $loader->alias('UNCSSO', 'GlassSteel\LaravelUncSso\UncSsoFacade');
         });
 
          $this->mergeConfig();
@@ -57,7 +57,7 @@ class UncSsoServiceProvider extends ServiceProvider
     private function registerUncSso()
     {
         $this->app->bind('unc_sso', function ($app) {
-            return new UncSso();
+            return new LaravelUncSso();
         });
     }
 

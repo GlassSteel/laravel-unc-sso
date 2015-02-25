@@ -58,6 +58,113 @@ class MigrationCommand extends Command
             $this->line('');
 
         }
+
+        if ($this->confirm("Create stub auth user model file? [Yes|no]") ){
+            $this->line('');
+
+            $this->info("Creating auth user model...");
+
+            if ($this->createAuthUserStub()) {
+                $this->info("Auth user model file successfully created!");
+            } else {
+                $this->error(
+                    "Coudn't create model file.\n Check the write permissions".
+                    " within the app/ directory."
+                );
+            }
+
+            $this->line('');
+        }
+
+        if ($this->confirm("Create stub local user & unc key model files? [Yes|no]") ){
+            $this->line('');
+
+            $this->info("Creating models...");
+
+            if ($this->createModelStubs()) {
+                $this->info("Model files successfully created!");
+            } else {
+                $this->error(
+                    "Coudn't create model files.\n Check the write permissions".
+                    " within the app/ directory."
+                );
+            }
+
+            $this->line('');
+        }
+
+        if ($this->confirm("Create seed file for development? [Yes|no]")) {
+
+            $this->line('');
+
+            $this->info("Creating seeder...");
+
+            if ($this->createSeeder()) {
+                $this->info("Seed File successfully created!");
+            } else {
+                $this->error(
+                    "Coudn't create seed file.\n Check the write permissions".
+                    " within the app/database/seeds directory."
+                );
+            }
+
+            $this->line('');
+
+        }
+        
+    }
+
+    protected function createAuthUserStub(){
+        $model_class = class_basename( Config::get('unc_sso.auth_model') );
+        $output = $this->laravel->view->make('unc_sso::generators.auth_user_model')->with([
+            'model_class' => $model_class,
+        ])->render();
+        $file = base_path("app") . "/" . $model_class . '.php';
+        if (!file_exists($file) && $fs = fopen($file, 'x')) {
+            fwrite($fs, $output);
+            fclose($fs);
+            return true;
+        }
+        return false;
+    }//createAuthUserStub()
+
+    /**
+     * Create the plugin model stubs.
+     *
+     * @param string $name
+     *
+     * @return bool
+     */
+    protected function createModelStubs()
+    {
+        $key_model = class_basename( Config::get('unc_sso.unc_key_model') );
+        $local_user_model = class_basename( Config::get('unc_sso.local_user_model') );
+        $user_class = Config::get('unc_sso.auth_model');
+
+        $key_output = $this->laravel->view->make('unc_sso::generators.key_model')->with([
+            'model_class' => $key_model,
+            'user_class'  => $user_class,
+        ])->render();
+
+        $local_users_output = $this->laravel->view->make('unc_sso::generators.local_user_model')->with([
+            'model_class' => $local_user_model,
+            'user_class'  => $user_class,
+        ])->render();
+        
+        $key_model_file = base_path("app") . "/" . $key_model . '.php';
+        $local_users_model_file = base_path("app") . "/" . $local_user_model . '.php';
+        
+        if (!file_exists($key_model_file) && $fs = fopen($key_model_file, 'x')) {
+            fwrite($fs, $key_output);
+            fclose($fs);
+            if (!file_exists($local_users_model_file) && $fs = fopen($local_users_model_file, 'x')) {
+                fwrite($fs, $local_users_output);
+                fclose($fs);
+            }
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -71,8 +178,8 @@ class MigrationCommand extends Command
     {
         $migrationFile = base_path("database/migrations")."/".date('Y_m_d_His')."_unc_sso_setup_tables.php";
         
-        $usersTable  = Config::get('auth.table');
-        $userModel   = Config::get('auth.model');
+        $usersTable  = Config::get('unc_sso.auth_table');
+        $userModel   = Config::get('unc_sso.auth_model');
         $userKeyName = (new $userModel())->getKeyName();
 
         $data = compact('keysTable','localusersTable','userKeyName','usersTable');
@@ -80,6 +187,36 @@ class MigrationCommand extends Command
         $output = $this->laravel->view->make('unc_sso::generators.migration')->with($data)->render();
 
         if (!file_exists($migrationFile) && $fs = fopen($migrationFile, 'x')) {
+            fwrite($fs, $output);
+            fclose($fs);
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Create the seed file.
+     *
+     * @param string $name
+     *
+     * @return bool
+     */
+    protected function createSeeder()
+    {
+        
+        $seeder_class = Config::get('unc_sso.seeder_class');
+        $userModel  = Config::get('unc_sso.auth_model');
+        $dev_user = Config::get('unc_sso.dev_user');
+        $local_user_model = Config::get('unc_sso.local_user_model');
+        $unc_key_model = Config::get('unc_sso.unc_key_model');
+
+        $data = compact('seeder_class','userModel','dev_user','local_user_model','unc_key_model');
+
+        $output = $this->laravel->view->make('unc_sso::generators.seed')->with($data)->render();
+
+        $seedFile = base_path("database/seeds")."/".$seeder_class.'.php';
+        if (!file_exists($seedFile) && $fs = fopen($seedFile, 'x')) {
             fwrite($fs, $output);
             fclose($fs);
             return true;

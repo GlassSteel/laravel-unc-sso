@@ -12,6 +12,14 @@ class UncSsoSetupTables extends Migration
      */
     public function up()
     {
+        //Modify Laravel 5's default users table
+        Schema::table('users', function($table)
+        {
+            $table->dropColumn(['name', 'password', 'remember_token']);
+            $table->string('first_name')->nullable();
+            $table->string('last_name');
+        });
+
         // Create table for storing unc pids and onyens (unc keys)
         Schema::create('{{ $keysTable }}', function (Blueprint $table) {
             $table->increments('id');

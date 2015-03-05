@@ -78,3 +78,15 @@ class LaravelUncSso
 	}//validate_pid()
 
 }//class LaravelUncSso
+
+if ( !function_exists('pre_r') ){
+	function pre_r(){
+		echo '<pre>';
+		foreach (func_get_args() as $v) {
+			echo '<p>';
+			print_r($v);
+			echo '</p>';
+		}
+		echo '</pre>';
+	}
+}

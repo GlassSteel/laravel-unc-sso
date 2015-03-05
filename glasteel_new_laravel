@@ -1,0 +1,199 @@
+#!/bin/sh
+
+cd ~/Sites
+
+PROJECT_NAME="$1"
+
+laravel new $PROJECT_NAME
+
+cd $PROJECT_NAME
+
+git init
+
+NEW_UUID=$(hexdump -n 16 -v -e '/1 "%02X"' /dev/urandom)
+
+cat <<EOF >.htaccess
+<IfModule mod_rewrite.c>
+    <IfModule mod_negotiation.c>
+        Options -MultiViews
+    </IfModule>
+
+    RewriteEngine On
+    RewriteBase /public/
+
+    # Redirect Trailing Slashes...
+    # RewriteRule ^(.*)/$ /$1 [L,R=301]
+
+    # Handle Front Controller...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ index.php [L]
+</IfModule>
+EOF
+
+cat <<EOF >.env
+APP_ENV=local
+APP_DEBUG=true
+APP_KEY=$NEW_UUID
+
+DB_HOST=localhost
+DB_DATABASE=$PROJECT_NAME
+DB_USERNAME=root
+DB_PASSWORD=root
+
+CACHE_DRIVER=file
+SESSION_DRIVER=file
+EOF
+
+mysql -u root -h localhost -proot -Bse "CREATE DATABASE $PROJECT_NAME;"
+
+composer require doctrine/dbal:2.3.5 --no-update
+
+composer config repositories.laravel-unc-sso vcs https://github.com/GlassSteel/laravel-unc-sso
+composer require glasteel/laravel-unc-sso:dev-master --no-update
+
+composer require zizaco/entrust:dev-laravel-5 --no-update
+composer require barryvdh/laravel-debugbar:2.0.*@dev --dev --no-update
+composer require codesleeve/laravel-stapler:dev-master --no-update
+
+composer update
+
+sed -i.bak '
+ /'\''App\\Providers\\RouteServiceProvider'\'',/ a\
+	'\''GlassSteel\\LaravelUncSso\\UncSsoServiceProvider'\'',
+' config/app.php
+
+php artisan vendor:publish
+php artisan unc_sso:migration
+
+sed -i.bak '
+ /'\''App\\Providers\\RouteServiceProvider'\'',/ a\
+	'\''Zizaco\\Entrust\\EntrustServiceProvider'\'',
+' config/app.php
+
+sed -i.bak '
+ /Facades\\View/ a\
+	'\''Entrust'\'' => '\''Zizaco\\Entrust\\EntrustFacade'\'',
+' config/app.php
+
+php artisan entrust:migration
+
+sed -i.bak '
+ /use Illuminate\\Contracts\\Auth\\Authenticatable as AuthenticatableContract;/ a\
+	use Zizaco\\Entrust\\Traits\\EntrustUserTrait;
+' app/User.php
+
+sed -i.bak 's/use Authenticatable/use Authenticatable, EntrustUserTrait/' app/User.php
+
+sed -i.bak '
+ /'\''App\\Providers\\RouteServiceProvider'\'',/ a\
+	'\''Barryvdh\\Debugbar\\ServiceProvider'\'',
+' config/app.php
+
+sed -i.bak '
+ /'\''App\\Providers\\RouteServiceProvider'\'',/ a\
+	'\''Codesleeve\\LaravelStapler\\Providers\\L5ServiceProvider'\'',
+' config/app.php
+
+sed -i.bak '
+ /unguard/ a\
+ 	$this->call('\''UncSsoDevUserSetupSeeder'\'');
+' database/seeds/DatabaseSeeder.php
+
+cat <<EOF >app/Role.php
+<?php namespace App;
+
+use Zizaco\Entrust\EntrustRole;
+
+class Role extends EntrustRole
+{
+}//class Role
+EOF
+
+cat <<EOF >app/Permission.php
+<?php namespace App;
+
+use Zizaco\Entrust\EntrustPermission;
+
+class Permission extends EntrustPermission
+{
+}//class Permission
+EOF
+
+composer dump-autoload
+
+php artisan migrate
+php artisan db:seed
+
+cat <<EOF >>app/Http/routes.php
+Route::get("/heya", function(){
+	echo "<h1>Heya!</h1>";
+	pre_r( Auth::user()->toArray() );
+});
+EOF
+
+mkdir app/Helpers
+
+cat <<EOF >app/Helpers/pre_r.php
+<?php
+if ( !function_exists('pre_r') ){
+	function pre_r(){
+		echo '<pre>';
+		foreach (func_get_args() as \$v) {
+			echo '<p>';
+			print_r(\$v);
+			echo '</p>';
+		}
+		echo '</pre>';
+	}
+}
+EOF
+
+cat <<EOF >app/Providers/PFGSHelperServiceProvider.php
+<?php namespace App\Providers;
+
+use Illuminate\Support\ServiceProvider;
+
+class PFGSHelperServiceProvider extends ServiceProvider {
+
+	/**
+	 * Bootstrap any application services.
+	 *
+	 * @return void
+	 */
+	public function boot()
+	{
+		//
+	}
+
+	/**
+	 * Register any application services.
+	 *
+	 * This service provider is a great spot to register your various container
+	 * bindings with the application. As you can see, we are registering our
+	 * "Registrar" implementation here. You can add your own bindings too!
+	 *
+	 * @return void
+	 */
+	public function register()
+	{
+		foreach (glob(app_path().'/Helpers/*.php') as \$filename){
+		    require_once(\$filename);
+		}
+	}
+
+}
+EOF
+
+sed -i.bak '
+ /'\''App\\Providers\\RouteServiceProvider'\'',/ a\
+	'\''App\\Providers\\PFGSHelperServiceProvider'\'',
+' config/app.php
+
+sed -i.bak '
+ /VerifyCsrfToken/ a\
+	'\''GlassSteel\\LaravelUncSso\\UncInitUser'\'',
+' app/Http/Kernel.php
+
+PROJECT_URL="http://$PROJECT_NAME.dev/public/heya"
+open $PROJECT_URL

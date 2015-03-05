@@ -1,6 +1,6 @@
 <?php namespace GlassSteel\LaravelUncSso;
 
-use Illuminate\Support\Facades\Config, App, Auth, Request, Redirect;
+use Illuminate\Support\Facades\Config, App, Auth, Request, Redirect, Url;
 
 class LaravelUncSso
 {
@@ -30,8 +30,9 @@ class LaravelUncSso
 				 * Assume PID is valid, but no matching User yet in our DB;
 				 * Redirect to signup screen
 				 */
-				if ( Request::url() != Config::get('unc_sso.signup_action') ){
-					return Redirect::to( Config::get('unc_sso.signup_action') );
+				$signup = Url::get( Config::get('unc_sso.signup_action') );
+				if ( Request::url() != $signup ){
+					return Redirect::to( $signup );
 				}
 			}else{
 				/**

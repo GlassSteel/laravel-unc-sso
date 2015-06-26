@@ -15,7 +15,7 @@ to your composer.json's `'repositories'` array, as well as `"glasteel/laravel-un
 
 Then in your `config/app.php` add 
 
-    'GlassSteel\LaravelUncSso\UncSsoServiceProvider'
+    GlassSteel\LaravelUncSso\UncSsoServiceProvider::class
     
 in the providers array. This package automatically registers 'UncSso' as a alias.
 
@@ -52,6 +52,13 @@ Add `$this->call('UncSsoDevUserSetupSeeder');` to `DatabaseSeeder.php` to use th
 
 ## Usage
 
-Add `'GlassSteel\LaravelUncSso\UncInitUser'` to the `$middleware` array in `app/http/Kernel.php` to check for a UNC pid on each request, and login the matching user, if any, via `Auth::login()`
+Add `\GlassSteel\LaravelUncSso\UncInitUser::class` to the `$middleware` array in `app/http/Kernel.php` to check for a UNC pid on each request, and login the matching user, if any, via `Auth::login()`
 
-Add `'unc_sso' => 'GlassSteel\LaravelUncSso\UncAuthUser'` to the `$routeMiddleware` array. Any routes protected by the `'unc_sso'` middleware will redirect to signup if a valid-seeming PID is found but not mached to an existing user, or will redirect to home if no PID is found.
+Add `'unc_sso' => \GlassSteel\LaravelUncSso\UncAuthUser::class` to the `$routeMiddleware` array. Any routes protected by the `'unc_sso'` middleware will redirect to signup if a valid-seeming PID is found but not mached to an existing user, or will redirect to home if no PID is found.
+
+```
+//Simple test script
+echo '<pre style="color:#000">';
+print_r(Auth::user()->toArray());
+echo '</pre>';
+```
